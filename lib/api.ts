@@ -1,17 +1,18 @@
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
 export async function createLab(labType: string, ttl = 15): Promise<string> {
-  const res = await fetch("https://vmuv90nfpl.execute-api.ap-south-1.amazonaws.com/labs", {
+  const res = await fetch(`${API_BASE}/labs`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ lab_type: labType, ttl })
   });
-
-  const data = await res.json();
-  return data.lab_id; // string
+  if (!res.ok) throw new Error(`Create failed ${res.status}`);
+  const { lab_id } = await res.json();
+  return lab_id;
 }
 
-export async function getLabStatus(labId: string): Promise<{ status: string; access_url: string | null }> {
-  const res = await fetch(`https://vmuv90nfpl.execute-api.ap-south-1.amazonaws.com/labs/${labId}/status`);
-  return await res.json(); // { status, access_url }
+export async function getLabStatus(labId: string) {
+  const res = await fetch(`${API_BASE}/labs/${labId}/status`);
+  if (!res.ok) throw new Error(`Status check failed ${res.status}`);
+  return res.json(); // { status, access_url }
 } 
