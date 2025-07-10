@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { getLabStatus } from "@/lib/api";
+import { getLabStatus, terminateLab } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Copy, ExternalLink } from "lucide-react";
@@ -215,6 +215,7 @@ export default function LabPage({ params }: { params: { labId: string } }) {
     <>
       {showConfetti && <LabConfettiOverlay ref={confettiRef} />}
       <div className="absolute inset-0 -z-10 bg-[#111216]" />
+      <div className="absolute inset-0 -z-20 bg-radial-gradient" />
       <div className="ambient-light absolute inset-0 pointer-events-none -z-5" aria-hidden />
       <div className="absolute inset-0 pointer-events-none z-0">
         {/* TODO: Replace with react-tsparticles or canvas particles */}
@@ -226,15 +227,15 @@ export default function LabPage({ params }: { params: { labId: string } }) {
   // Header/Footer
   const Header = () => (
     <header className="w-full flex flex-col items-center justify-center px-10 pt-10 pb-4 bg-transparent">
-      <h1 id="labstack-title" className="text-7xl md:text-8xl lg:text-9xl orbitron-heading text-white text-center select-none cursor-pointer" style={{letterSpacing: 1}}>
+      <h1 id="labstack-title" className="text-5xl md:text-6xl lg:text-7xl orbitron-heading text-white text-center select-none cursor-pointer mt-16 mb-10 heading-glow" style={{letterSpacing: 1}}>
         LabStack
       </h1>
     </header>
   );
   const Footer = () => (
-    <footer className="w-full py-8 px-10 flex flex-col md:flex-row justify-between items-center bg-transparent text-white/60 text-sm gap-4">
+    <footer className="w-full py-10 flex flex-col items-center justify-center bg-transparent text-white/60 text-base gap-2 mt-12">
       <div>© {new Date().getFullYear()} LabStack. All rights reserved.</div>
-      <div className="flex gap-6">
+      <div className="flex gap-8 mt-2">
         <a href="#" className="hover:text-white transition">Twitter</a>
         <a href="#" className="hover:text-white transition">GitHub</a>
         <a href="#" className="hover:text-white transition">Contact</a>
@@ -377,6 +378,21 @@ export default function LabPage({ params }: { params: { labId: string } }) {
           .minimal-btn:active:not(:disabled) {
             background: #d1d5db !important;
           }
+          .heading-glow {
+            text-shadow: 0 2px 32px #8b5cf644, 0 1px 0 #fff;
+          }
+          .card-glow {
+            box-shadow: 0 8px 48px 0 #8b5cf622, 0 1.5px 0 #23232a;
+          }
+          .input-group-glow {
+            box-shadow: 0 2px 16px 0 #23232a44;
+          }
+          .timer-glow {
+            text-shadow: 0 2px 16px #8b5cf644;
+          }
+          .bg-radial-gradient {
+            background: radial-gradient(ellipse at 50% 40%, #23232a44 0%, transparent 70%);
+          }
         `}</style>
       </div>
     );
@@ -506,35 +522,50 @@ export default function LabPage({ params }: { params: { labId: string } }) {
       <Background />
       <Header />
       <main className="flex-1 flex flex-col items-center justify-center w-full px-4 pb-24">
-        <Card className="w-full max-w-xl shadow-2xl border-0 bg-white/10 backdrop-blur-lg rounded-3xl">
-          <CardContent className="p-10 flex flex-col items-center">
-            <h1 className="text-6xl md:text-7xl orbitron-heading font-extrabold mb-4 text-white tracking-tight text-center" style={{letterSpacing: 1}}>Your Lab is Ready 🎉</h1>
-            <p className="text-[#bfc9ff] mb-6 text-lg">Auto-deletes after TTL expires</p>
-            <div className="bg-[#1a1446]/80 rounded-xl p-5 w-full flex flex-col items-center mb-6 shadow-md">
+        <Card className="w-full max-w-2xl shadow-2xl border-0 bg-[#18181b] rounded-3xl p-12 card-glow">
+          <CardContent className="flex flex-col items-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">Your Lab is Ready <span role='img' aria-label='celebrate'>🎉</span></h2>
+            <p className="text-[#bfc9ff] mb-8 text-lg text-center">Auto-deletes after TTL expires</p>
+            <div className="w-full flex flex-col items-center mb-8">
               <span className="text-base text-[#bfc9ff] mb-2">Access your lab:</span>
-              <div className="flex w-full gap-2 items-center">
+              <div className="flex w-full gap-4 items-center bg-[#23232a] rounded-xl p-4 input-group-glow">
                 <input
                   type="text"
                   readOnly
                   value={activeLab.url}
-                  className="w-full border-0 px-3 py-2 text-lg rounded-lg bg-[#232946] text-[#6366f1] font-mono shadow-inner focus:outline-none"
+                  className="w-full border-0 px-3 py-2 text-lg rounded-lg bg-transparent text-[#8b5cf6] font-mono focus:outline-none"
                 />
-                <Button size="lg" onClick={handleCopy} className="rounded-xl text-lg px-8 py-3 bg-[#e5e7eb] text-[#111216] minimal-btn">
+                <Button size="lg" onClick={handleCopy} className="rounded-xl text-lg px-6 py-2 bg-[#e5e7eb] text-[#111216] minimal-btn">
                   <Copy className="h-5 w-5" />
                   {copied && <span className="ml-2 text-xs text-[#6366f1]">Copied!</span>}
                 </Button>
                 <Button size="lg" onClick={() => window.open(activeLab.url, "_blank")}
-                  className="rounded-xl text-lg px-8 py-3 bg-[#e5e7eb] text-[#111216] minimal-btn">
+                  className="rounded-xl text-lg px-6 py-2 bg-[#e5e7eb] text-[#111216] minimal-btn">
                   <ExternalLink className="h-5 w-5 mr-2" />Open Lab
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col items-center w-full">
-              <div className="text-7xl font-extrabold text-[#6366f1] mb-2 tracking-wide text-center">
+            <div className="flex flex-col items-center w-full mt-2">
+              <div className="text-6xl font-bold text-[#8b5cf6] mb-1 timer-glow">
                 {formatTime(activeLab.remainingTime)}
               </div>
-              <span className="text-[#bfc9ff] text-lg">Time remaining</span>
+              <span className="text-[#bfc9ff] text-base">Time remaining</span>
             </div>
+            {status === "ready" && activeLab && (
+              <button
+                onClick={async () => {
+                  try {
+                    await terminateLab(activeLab.id);
+                    setStatus("terminated");
+                  } catch (err) {
+                    alert("Failed to terminate the lab");
+                  }
+                }}
+                className="mt-8 px-8 py-3 bg-red-600 text-white rounded-xl font-semibold minimal-btn hover:bg-red-700 transition"
+              >
+                Terminate Lab
+              </button>
+            )}
           </CardContent>
         </Card>
       </main>
