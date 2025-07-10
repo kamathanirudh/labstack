@@ -7,6 +7,37 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Copy, ExternalLink } from "lucide-react";
 
+// Add LabConfettiOverlay for confetti effect
+import React from "react";
+
+const LabConfettiOverlay = React.forwardRef<HTMLDivElement, {}>(function LabConfettiOverlay(_props, ref) {
+  return (
+    <div ref={ref} className="pointer-events-none fixed inset-0 z-[9999]">
+      {Array.from({ length: 42 }).map((_, i) => (
+        <span key={i} className={`confetti confetti-${i}`} />
+      ))}
+      <style jsx>{`
+        .confetti {
+          position: absolute;
+          width: 12px; height: 24px;
+          border-radius: 4px;
+          opacity: 0.85;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%) scale(1);
+          background: linear-gradient(120deg, #6366f1, #8b5cf6, #06b6d4, #fff 80%);
+          animation: confetti-burst 1.8s cubic-bezier(.4,0,.2,1) forwards;
+        }
+        ${Array.from({ length: 42 }).map((_, i) => `.confetti-${i} { animation-delay: ${(i * 0.03).toFixed(2)}s; left: ${50 + Math.sin(i) * 30}%; top: ${50 + Math.cos(i) * 18}%; }`).join("\n")}
+        @keyframes confetti-burst {
+          0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+          80% { opacity: 1; }
+          100% { opacity: 0; transform: translate(-50%, -120vh) scale(0.7) rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+});
+
 interface ActiveLab {
   id: string;
   url: string;
@@ -182,7 +213,7 @@ export default function LabPage({ params }: { params: { labId: string } }) {
   // Animated gradient background, parallax, ambient light, particles
   const Background = () => (
     <>
-      {showConfetti && <ConfettiOverlay ref={confettiRef} />}
+      {showConfetti && <LabConfettiOverlay ref={confettiRef} />}
       <div className="absolute inset-0 -z-10 bg-[#111216]" />
       <div className="ambient-light absolute inset-0 pointer-events-none -z-5" aria-hidden />
       <div className="absolute inset-0 pointer-events-none z-0">
