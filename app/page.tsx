@@ -18,7 +18,7 @@ import { createLab } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 type LabType = "python-lab" | "linux-networking-lab" | "python-cli-lab" | "sql-lab" | null
-type AppState = "selection" | "active" | "expired"
+type AppState = "selection" | "launching" | "active" | "expired"
 
 interface ActiveLab {
   id: string
@@ -97,33 +97,17 @@ export default function LabStack() {
   }
 
   const handleLaunchLab = async () => {
-    if (!selectedLab) return
-
-    setIsLaunching(true)
-
+    if (!selectedLab) return;
+    setAppState("launching");
+    setIsLaunching(true);
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-      const res = await fetch(`${baseUrl}/labs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lab_type: selectedLab, ttl_minutes: selectedTTL }),
-      })
-      if (!res.ok) throw new Error("Failed to launch lab")
-      const data = await res.json()
-      const lab: ActiveLab = {
-        id: data.container_id,
-        type: selectedLab,
-        url: data.access_url,
-        ttl: selectedTTL,
-        remainingTime: data.ttl_seconds,
-      }
-      setActiveLab(lab)
-      setAppState("active")
+      const labId = await createLab(selectedLab, selectedTTL);
+      router.push(`/lab/${labId}?ttl=${selectedTTL}`);
     } catch (err) {
-      // Optionally show error toast
-      alert("Failed to launch lab")
+      alert("Failed to launch lab");
+      setAppState("selection");
     } finally {
-      setIsLaunching(false)
+      setIsLaunching(false);
     }
   }
 
@@ -253,6 +237,14 @@ export default function LabStack() {
                 </>
               )}
             </Button>
+          </div>
+        )}
+
+        {appState === "launching" && (
+          <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#6366f1] mb-8" />
+            <h2 className="text-2xl font-semibold mb-2">Launching your lab...</h2>
+            <p className="text-[#8b949e]">Please wait while we provision your environment.</p>
           </div>
         )}
 

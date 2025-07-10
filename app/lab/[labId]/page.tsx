@@ -1,26 +1,40 @@
 'use client';
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getLabStatus } from "@/lib/api";
+
+interface ActiveLab {
+  id: string;
+  url: string;
+  remainingTime: number;
+}
 
 export default function LabPage({ params }: { params: { labId: string } }) {
   const { labId } = params;
+  const searchParams = useSearchParams();
+  const ttl = Number(searchParams.get("ttl")) || 15;
   const [status, setStatus] = useState<string | null>(null);
-  const [accessUrl, setAccessUrl] = useState<string | null>(null);
+  const [activeLab, setActiveLab] = useState<ActiveLab | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Poll for lab status
   useEffect(() => {
     let poll: NodeJS.Timeout;
     const fetchStatus = async () => {
       try {
         const res = await getLabStatus(labId);
         setStatus(res.status);
-        setAccessUrl(res.access_url);
         if (res.status === "error") {
           setError("Failed to launch the lab. Please try again.");
           clearInterval(poll);
         } else if (res.status === "ready" && res.access_url) {
           setError(null);
+          setActiveLab({
+            id: labId,
+            url: res.access_url,
+            remainingTime: ttl * 60,
+          });
           clearInterval(poll);
         }
       } catch (e) {
@@ -31,7 +45,28 @@ export default function LabPage({ params }: { params: { labId: string } }) {
     fetchStatus();
     poll = setInterval(fetchStatus, 5000);
     return () => clearInterval(poll);
-  }, [labId]);
+  }, [labId, ttl]);
+
+  // Countdown timer for remaining time
+  useEffect(() => {
+    if (activeLab && status === "ready") {
+      const interval = setInterval(() => {
+        setActiveLab((prev) => {
+          if (!prev) return null;
+          const newRemaining = prev.remainingTime - 1;
+          if (newRemaining <= 0) return { ...prev, remainingTime: 0 };
+          return { ...prev, remainingTime: newRemaining };
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [activeLab, status]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   if (error) {
     return (
@@ -54,7 +89,7 @@ export default function LabPage({ params }: { params: { labId: string } }) {
     );
   }
 
-  if (status !== "ready" || !accessUrl) {
+  if (!activeLab || status !== "ready") {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-200 mb-6" />
@@ -70,24 +105,23 @@ export default function LabPage({ params }: { params: { labId: string } }) {
       <h1 className="text-3xl font-bold mb-6">LabStack</h1>
       <h2 className="text-xl font-semibold mb-2">Your Lab is Ready 🎉</h2>
       <p className="text-gray-400 mb-4">Auto-deletes after TTL expires</p>
-
       <div className="bg-gray-900 rounded-lg p-4 mb-4">
         <p className="text-sm text-gray-300 mb-1">Access your lab:</p>
         <div className="flex items-center justify-center space-x-2">
           <input
             type="text"
             readOnly
-            value={accessUrl}
+            value={activeLab.url}
             className="w-full border px-2 py-1 text-sm rounded bg-gray-800 text-gray-100"
           />
           <button
-            onClick={() => navigator.clipboard.writeText(accessUrl)}
+            onClick={() => navigator.clipboard.writeText(activeLab.url)}
             className="text-sm px-3 py-1 bg-gray-700 text-white rounded hover:bg-gray-600"
           >
             Copy
           </button>
           <a
-            href={accessUrl}
+            href={activeLab.url}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
@@ -95,6 +129,12 @@ export default function LabPage({ params }: { params: { labId: string } }) {
             Open Lab
           </a>
         </div>
+      </div>
+      <div className="bg-gray-800 rounded-lg p-4 mb-4">
+        <div className="text-4xl font-mono font-bold text-[#6366f1] mb-2">
+          {formatTime(activeLab.remainingTime)}
+        </div>
+        <p className="text-gray-400">Time remaining</p>
       </div>
     </div>
   );
