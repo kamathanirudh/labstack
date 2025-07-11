@@ -161,30 +161,10 @@ pnpm dev
 * [ ] OAuth (GitHub/Google login)
 * [ ] Persistent volumes (opt‑in)
 * [ ] Prebuilt AI/ML & web dev lab templates
-* [ ] Usage analytics & billing dashboard
-* [ ] WebSocket‑based launch feedback
+* [ ] Save User data for next launch
 
 ---
 
-## 📚 Project Structure
-
-```
-.
-├── labstack-frontend/          # Next.js + Tailwind + shadcn/ui
-│   ├── app/
-│   ├── components/
-│   ├── hooks/
-│   └── public/
-├── labstack-backend/           # FastAPI + Mangum for AWS Lambda
-│   ├── aws-lambda-function/
-│   │   ├── ec2_launcher.py
-│   │   ├── terminate_lab.py
-│   │   └── main.py
-│   ├── lab_templates.json
-│   └── requirements.txt
-├── terraform/ (optional)       # IaC for AWS resources
-└── README.md
-```
 
 > 💡 **LabStack** showcases end-to-end cloud orchestration, from frontend to serverless backend to containerized labs on EC2.
 > Built for developers. Powered by AWS. Styled for delight. 
