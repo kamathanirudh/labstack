@@ -3,7 +3,7 @@
 > **Spin up disposable, browser-based development labs in the cloud.**  
 > Provisioned on AWS EC2, orchestrated via Lambda, served via Docker.  
 
-📖 [Read the full blog on Hashnode](#) <!-- replace with your actual Hashnode link -->
+📖 [Read the full blog on Hashnode](#https://labstack.hashnode.dev/building-labstack) <!-- replace with your actual Hashnode link -->
 
 ---
 
@@ -30,7 +30,7 @@ Built to demonstrate **cloud automation, Docker orchestration, and frontend UX**
 ```mermaid
 graph TD;
   User["👩‍💻 User (Browser)"] -->|Launch Request| Vercel["🌐 Frontend (Next.js)"];
-  Vercel -->|REST API Call| APIGW["🛡 API Gateway"];
+  Vercel -->|HTTP| APIGW["🛡 API Gateway"];
   APIGW -->|Proxy| Lambda["⚙️ Lambda Function (FastAPI)"];
   Lambda -->|Create/Track| DynamoDB["🧾 DynamoDB (Lab Metadata)"];
   Lambda -->|Launch Lab| EC2["🚀 EC2 Instance (Docker Lab)"];
