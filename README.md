@@ -1,114 +1,190 @@
-# LabStack
+# 🚀 LabStack
 
-> **Spin up disposable, browser-based development labs in the cloud.**
+> **Spin up disposable, browser-based development labs in the cloud.**  
+> Provisioned on AWS EC2, orchestrated via Lambda, served via Docker.  
 
----
-
-## 🚀 What is LabStack?
-LabStack is a cloud-native platform that lets you launch ephemeral, browser-accessible development environments ("labs") in seconds. Designed for speed, security, and developer delight, LabStack is perfect for onboarding, workshops, hackathons, and safe experimentation—no local setup, no cleanup required.
+📖 [Read the full blog on Hashnode](#) <!-- replace with your actual Hashnode link -->
 
 ---
 
-## ✨ Features
-- **One-click Lab Launch:** Instantly spin up a fresh dev environment in your browser.
-- **Disposable & Isolated:** Each lab runs in its own secure EC2 instance, terminated on demand.
-- **Animated, Minimalist UI:** Modern, interactive landing page with animated lab cards, glitch effects, and ambient visuals.
-- **Real-time Feedback:** Live status, progress indicators, and celebratory states (confetti, sound hooks).
-- **Dynamic Storytelling:** Time-based taglines, real-time stats, and environmental storytelling.
-- **Terminate Labs:** Instantly shut down labs to save costs and keep things tidy.
-- **Easter Eggs & Personality:** Fun micro-interactions, cursor trails, and hidden surprises.
+## 🧠 What is LabStack?
+
+**LabStack** is a cloud-native DevOps playground that lets users launch isolated, time‑limited development environments (“labs”) entirely in the browser — ideal for workshops, onboarding, prototyping, or safe experimentation.
+
+Built to demonstrate **cloud automation, Docker orchestration, and frontend UX**, it spins up prebuilt Docker environments on EC2 via a serverless backend, and automatically shuts them down after use.
 
 ---
 
-## 🏗️ Architecture
+## ✨ Core Features
+
+- ⚡️ **One‑Click Lab Launch** – Interactive landing page triggers lab provisioning in seconds.  
+- 🔒 **Isolated EC2 Labs** – Every lab runs in a dedicated EC2 instance with Dockerized tools.  
+- 🎨 **Animated UI** – Glitch effects, ambient visuals, confetti hooks, and real‑time UX feedback.  
+- ⏱ **Time‑To‑Live (TTL)** – Labs are auto‑terminated after expiry to reduce AWS costs.  
+- 🧹 **Disposable by Design** – Labs wipe clean on shutdown; no persistent state or manual cleanup.
+
+---
+
+## 🏗️ Architecture Overview
 
 ```mermaid
 graph TD;
-  User["User (Browser)"] -->|Launches Lab| Vercel["Frontend (Next.js on Vercel)"]
-  Vercel -->|API Call| APIGW["AWS API Gateway"]
-  APIGW -->|Lambda Proxy| Lambda["AWS Lambda (FastAPI)"]
-  Lambda -->|Track Labs| DynamoDB["DynamoDB"]
-  Lambda -->|Launch/Terminate| EC2["EC2 (Docker Lab)"]
-  EC2 -->|Lab UI| User
+  User["👩‍💻 User (Browser)"] -->|Launch Request| Vercel["🌐 Frontend (Next.js)"];
+  Vercel -->|REST API Call| APIGW["🛡 API Gateway"];
+  APIGW -->|Proxy| Lambda["⚙️ Lambda Function (FastAPI)"];
+  Lambda -->|Create/Track| DynamoDB["🧾 DynamoDB (Lab Metadata)"];
+  Lambda -->|Launch Lab| EC2["🚀 EC2 Instance (Docker Lab)"];
+  EC2 -->|Expose Lab UI| User;
 ```
 
-- **Frontend:** Next.js (Vercel) with advanced UI/UX, minimal dark theme, and premium typography (Inter, Poppins, Orbitron).
-- **Backend:** FastAPI app, serverless via AWS Lambda (Mangum/Zappa), exposed through API Gateway.
-- **Lab Orchestration:** EC2 instances launched per lab, running Docker containers for each lab type (configurable via JSON templates).
-- **Persistence:** DynamoDB for lab tracking and status.
-- **CI/CD:** GitHub Actions (optional), Vercel for frontend deploys.
-
 ---
 
-## 🧑‍💻 User Flow
-1. **Land:** User visits LabStack, greeted by animated, interactive landing page.
-2. **Launch:** Clicks "Launch Lab"—progress, animation, and real-time feedback begin.
-3. **Lab Ready:** User is redirected to a browser-based IDE/terminal (via EC2/Docker).
-4. **Terminate:** User can terminate the lab at any time, instantly shutting down the EC2 instance.
+## 🛠 Tech Stack
 
----
+**Frontend**
 
-## 🛠️ Tech Stack
-- **Frontend:** Next.js, Tailwind CSS, Framer Motion, custom React components
-- **Backend:** FastAPI, AWS Lambda (Mangum), API Gateway
-- **Cloud:** AWS EC2, DynamoDB, Docker, GitHub Container Registry
-- **Infra as Code:** (Optional) Terraform, AWS CDK
-- **CI/CD:** GitHub Actions, Vercel
+* Next.js App Router (Vercel)
+* Tailwind CSS + Framer Motion
+* shadcn/ui + Radix primitives
+* Custom Hooks: lab polling, toast feedback, redirect on ready
+
+**Backend**
+
+* FastAPI inside AWS Lambda (Mangum)
+* AWS SDK & Docker SDK for instance/container orchestration
+* DynamoDB for lab metadata & status
+* GitHub Container Registry for hosting lab images
+
+**Infra**
+
+* AWS EC2 for isolated lab instances
+* API Gateway → Lambda control plane
+* DynamoDB state store
+* (Optional) Terraform or CDK IaC
 
 ---
 
 ## 🧩 Lab Templates
-Lab types are defined in a JSON file, specifying Docker images, ports, and container configs. Easily extendable for new stacks (Node, Python, Go, etc).
+
+Defined in `lab_templates.json`:
+
+```json
+{
+  "labstack-python-lab": {
+    "image": "ghcr.io/kamatanirudh/labstack-python-lab",
+    "port": 8080,
+    "container_port": 8080
+  },
+  "labstack-networking-lab": {
+    "image": "ghcr.io/kamatanirudh/labstack-networking-lab",
+    "port": 8081,
+    "container_port": 8080
+  }
+}
+```
+
+* **image**: GHCR path
+* **port**: public port on EC2
+* **container_port**: Docker container port
 
 ---
 
-## 🛡️ Security & Cost
-- **Ephemeral by Design:** Labs are short-lived, isolated, and auto-terminated.
-- **No Persistent Data:** All work is wiped on termination—perfect for safe experimentation.
-- **Cost Control:** Users can terminate labs at any time; backend enforces TTLs.
+## 📲 User Flow
+
+1. **Landing Page**
+   User visits the Next.js app on Vercel.
+2. **Launch**
+   Select a lab type & TTL → POST to `/labs` via API Gateway.
+3. **Provision**
+   Lambda reads `lab_templates.json`, spins up EC2 with user data to pull & run the Docker container, schedules shutdown.
+4. **Redirect**
+   Frontend polls `/labs/{id}/status` until ready, then redirects to `http://<EC2_IP>:<port>`.
+5. **Terminate**
+   User clicks “Terminate” or TTL expires → Lambda terminates the EC2 instance.
 
 ---
 
-## 🌱 Why LabStack?
-- **Zero Setup:** No local installs, no config, no risk to your machine.
-- **Onboarding & Workshops:** Get everyone coding in seconds, not hours.
-- **Safe Experimentation:** Try new stacks, break things, start over—no mess.
-- **Recruiter-Friendly:** Show off your cloud, infra, and frontend chops in one project.
+## 🔐 Security & Cost Controls
+
+* **Stateless Labs**: No persistence beyond container lifetime.
+* **Instance Isolation**: Separate EC2 per lab.
+* **TTL Enforcement**: `shutdown -h +<ttl>` in user-data.
+* **Manual Termination**: UI button to clean up immediately.
 
 ---
 
-## 📈 Future Plans
-- **OAuth & User Accounts**
-- **Persistent Volumes (opt-in)**
-- **Prebuilt Lab Templates (AI/ML, Web, Data, etc)**
-- **Usage Analytics & Billing**
-- **Team/Org Management**
-- **Self-Destructing Labs (TTL)**
+## 🧑‍💻 Developer Setup
 
----
+### 🔧 Local Development
 
-## 📝 Setup & Usage
-
-### Frontend
 ```bash
+# Backend
+cd labstack-backend
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+
+# Frontend
+cd labstack-frontend
 pnpm install
 pnpm dev
 ```
 
-### Backend (see `aws-lambda-function/`)
-- Deploy FastAPI app to AWS Lambda (Mangum/Zappa)
-- Configure API Gateway, DynamoDB, EC2 permissions
+### ☁️ Deployment
+
+1. **Build & Publish Docker Images**
+
+   ```bash
+   docker build -t ghcr.io/kamatanirudh/labstack-python-lab ./python-lab
+   docker push ghcr.io/kamatanirudh/labstack-python-lab
+   docker build -t ghcr.io/kamatanirudh/labstack-networking-lab ./networking-lab
+   docker push ghcr.io/kamatanirudh/labstack-networking-lab
+   ```
+
+2. **Deploy Backend to AWS Lambda**
+
+   * Use Zappa, Serverless Framework, or Terraform/Mangum
+   * Configure API Gateway, DynamoDB table, and IAM roles
+
+3. **Deploy Frontend to Vercel**
+
+   * Connect to GitHub repo
+   * Set environment variables:
+
+     * `NEXT_PUBLIC_API_URL`
+     * AWS credentials/secrets in GitHub Actions or Vercel dashboard
 
 ---
 
-## 🤝 Contributing
-PRs welcome! Please open issues for bugs, ideas, or feature requests.
+## 📈 Future Roadmap
+
+* [ ] OAuth (GitHub/Google login)
+* [ ] Persistent volumes (opt‑in)
+* [ ] Prebuilt AI/ML & web dev lab templates
+* [ ] Usage analytics & billing dashboard
+* [ ] WebSocket‑based launch feedback
 
 ---
 
-## 📄 License
-MIT
+## 📚 Project Structure
 
----
+```
+.
+├── labstack-frontend/          # Next.js + Tailwind + shadcn/ui
+│   ├── app/
+│   ├── components/
+│   ├── hooks/
+│   └── public/
+├── labstack-backend/           # FastAPI + Mangum for AWS Lambda
+│   ├── aws-lambda-function/
+│   │   ├── ec2_launcher.py
+│   │   ├── terminate_lab.py
+│   │   └── main.py
+│   ├── lab_templates.json
+│   └── requirements.txt
+├── terraform/ (optional)       # IaC for AWS resources
+└── README.md
+```
 
-> Minimal, beautiful, and powerful. LabStack is your cloud dev playground. 
+> 💡 **LabStack** showcases end-to-end cloud orchestration, from frontend to serverless backend to containerized labs on EC2.
+> Built for developers. Powered by AWS. Styled for delight. 
