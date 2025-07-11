@@ -1,9 +1,10 @@
 # 🚀 LabStack
 
 > **Spin up disposable, browser-based development labs in the cloud.**  
-> Provisioned on AWS EC2, orchestrated via Lambda, served via Docker.  
+> Provisioned on AWS EC2, orchestrated via Lambda, served via Docker.
+
 📖 [Read the full blog on Hashnode](https://labstack.hashnode.dev/building-labstack)
----
+
 
 ## 🧠 What is LabStack?
 
@@ -11,7 +12,6 @@
 
 Built to demonstrate **cloud automation, Docker orchestration, and frontend UX**, it spins up prebuilt Docker environments on EC2 via a serverless backend, and automatically shuts them down after use.
 
----
 
 ## ✨ Core Features
 
@@ -21,7 +21,6 @@ Built to demonstrate **cloud automation, Docker orchestration, and frontend UX**
 - ⏱ **Time‑To‑Live (TTL)** – Labs are auto‑terminated after expiry to reduce AWS costs.  
 - 🧹 **Disposable by Design** – Labs wipe clean on shutdown; no persistent state or manual cleanup.
 
----
 
 ## 🏗️ Architecture Overview
 
@@ -35,7 +34,6 @@ graph TD;
   EC2 -->|Expose Lab UI| User;
 ```
 
----
 
 ## 🛠 Tech Stack
 
@@ -58,9 +56,7 @@ graph TD;
 * AWS EC2 for isolated lab instances
 * API Gateway → Lambda control plane
 * DynamoDB state store
-* (Optional) Terraform or CDK IaC
-
----
+  
 
 ## 🧩 Lab Templates
 
@@ -85,7 +81,7 @@ Defined in `lab_templates.json`:
 * **port**: public port on EC2
 * **container_port**: Docker container port
 
----
+
 
 ## 📲 User Flow
 
@@ -100,7 +96,6 @@ Defined in `lab_templates.json`:
 5. **Terminate**
    User clicks “Terminate” or TTL expires → Lambda terminates the EC2 instance.
 
----
 
 ## 🔐 Security & Cost Controls
 
@@ -109,7 +104,7 @@ Defined in `lab_templates.json`:
 * **TTL Enforcement**: `shutdown -h +<ttl>` in user-data.
 * **Manual Termination**: UI button to clean up immediately.
 
----
+
 
 ## 🧑‍💻 Developer Setup
 
@@ -152,7 +147,7 @@ pnpm dev
      * `NEXT_PUBLIC_API_URL`
      * AWS credentials/secrets in GitHub Actions or Vercel dashboard
 
----
+
 
 ## 📈 Future Roadmap
 
