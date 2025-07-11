@@ -168,15 +168,15 @@ export default function LabStack() {
           <div className="premium-grid mt-8">
             {LAB_OPTIONS.map((lab, i) => (
               <div
-                key={lab.id}
+                    key={lab.id}
                 className={`relative group transition-all duration-300 cursor-pointer rounded-3xl border-0 shadow-2xl bg-white/10 backdrop-blur-lg overflow-hidden
                   ${selectedLab === lab.id ? "ring-4 ring-[#6366f1]/80" : "ring-2 ring-[#232946]/40"}
                   hover:scale-105 hover:shadow-[0_8px_32px_0_rgba(99,102,241,0.4)]
                   premium-grid-card premium-grid-card-${i}
                 `}
                 style={{ minHeight: 180, boxShadow: selectedLab === lab.id ? "0 0 32px 8px #6366f1aa" : undefined, zIndex: 1 }}
-                onClick={() => setSelectedLab(lab.id)}
-              >
+                    onClick={() => setSelectedLab(lab.id)}
+                  >
                 {/* Animated Gradient Border */}
                 <div className="absolute inset-0 z-0 pointer-events-none rounded-3xl border-4 border-transparent group-hover:border-gradient animate-border-gradient" />
                 {/* Glow */}
@@ -186,8 +186,8 @@ export default function LabStack() {
                   <CardContent className="p-6 flex flex-col justify-center h-full">
                     <h3 className="text-xl font-bold mb-1 text-white font-poppins">{lab.title}</h3>
                     <p className="text-[#bfc9ff] text-base font-inter">{lab.description}</p>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
                 {/* Interactive Preview on Hover */}
                 {/* Remove MatrixRainPreview from button overlays, keep only for card previews if needed */}
               </div>
@@ -195,35 +195,35 @@ export default function LabStack() {
           </div>
           <div className="flex flex-col md:flex-row items-center gap-4 mt-8">
             <label className="text-lg font-semibold text-white">Time to Live:</label>
-            <Select value={selectedTTL.toString()} onValueChange={(value) => setSelectedTTL(Number(value))}>
+              <Select value={selectedTTL.toString()} onValueChange={(value) => setSelectedTTL(Number(value))}>
               <SelectTrigger className="w-48 bg-white/10 border-0 text-white shadow-md rounded-xl focus:ring-2 focus:ring-[#6366f1] backdrop-blur-lg">
-                <SelectValue />
-              </SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
               <SelectContent className="bg-[#232946] border-0 rounded-xl shadow-lg">
-                {TTL_OPTIONS.map((option) => (
+                  {TTL_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value.toString()} className="hover:bg-[#6366f1]/20">{option.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                  ))}
+                </SelectContent>
+              </Select>
           </div>
-          <Button
-            onClick={handleLaunchLab}
-            disabled={!selectedLab || isLaunching}
+            <Button
+              onClick={handleLaunchLab}
+              disabled={!selectedLab || isLaunching}
             className="w-full h-16 text-xl font-bold rounded-2xl bg-[#e5e7eb] text-[#111216] mt-8 simple-launch-btn"
             style={{ letterSpacing: 1 }}
-          >
-            {isLaunching ? (
-              <>
+            >
+              {isLaunching ? (
+                <>
                 <span className="loader mr-3" />
                 {loadingText}
-              </>
-            ) : (
-              <>
+                </>
+              ) : (
+                <>
                 <Rocket className="mr-3 h-6 w-6" />
-                Launch Lab
-              </>
-            )}
-          </Button>
+                  Launch Lab
+                </>
+              )}
+            </Button>
           {error && <div className="text-red-400 text-center mt-4">{error}</div>}
         </div>
       </main>
@@ -234,9 +234,9 @@ export default function LabStack() {
             <h2 className="text-4xl font-extrabold mb-4 gradient-text">👾 Secret Unlocked!</h2>
             <p className="text-lg text-white mb-4">You found an easter egg!<br/>Keep exploring for more surprises.</p>
             <button className="mt-4 px-6 py-2 rounded-xl bg-[#6366f1] text-white font-bold text-lg shadow-lg hover:bg-[#8b5cf6] transition" onClick={() => setEasterEgg(false)}>Close</button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       {/* Footer */}
       <footer className="w-full py-8 px-10 flex flex-col md:flex-row justify-between items-center bg-transparent text-white/60 text-sm gap-4">
         <div>© {new Date().getFullYear()} LabStack. All rights reserved.</div>
@@ -427,7 +427,7 @@ export default function LabStack() {
           100% { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-    </div>
+            </div>
   );
 }
 
@@ -439,7 +439,7 @@ function MatrixRainPreview() {
         {Array.from({ length: 16 }).map((_, i) => (
           <span key={i} className={`matrix-col animate-matrixRain delay-${i % 8}`}>{randomMatrixString(8)}</span>
         ))}
-      </div>
+          </div>
       <style jsx>{`
         .matrix-rain {
           display: flex;

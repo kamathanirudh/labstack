@@ -1,0 +1,22 @@
+{
+  "python-lab": {
+    "image": "ghcr.io/kamathanirudh/labstack-python-lab:latest",
+    "port": 8080,
+    "container_port": 8080
+  },
+  "linux-networking-lab": {
+    "image": "ghcr.io/kamathanirudh/labstack-linux-networking-lab:latest",
+    "port": 8081,
+    "container_port": 7681
+  },
+  "python-cli-lab": {
+    "image": "ghcr.io/kamathanirudh/labstack-python-cli-lab:latest",
+    "port": 8082,
+    "container_port": 7681
+  },
+  "sql-lab": {
+    "image": "ghcr.io/kamathanirudh/labstack-sql-lab:latest",
+    "port": 8083,
+    "container_port": 7681
+  }
+} 
