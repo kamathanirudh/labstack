@@ -2,9 +2,7 @@
 
 > **Spin up disposable, browser-based development labs in the cloud.**  
 > Provisioned on AWS EC2, orchestrated via Lambda, served via Docker.  
-
-📖 [Read the full blog on Hashnode](#https://labstack.hashnode.dev/building-labstack) <!-- replace with your actual Hashnode link -->
-
+📖 [Read the full blog on Hashnode](https://labstack.hashnode.dev/building-labstack)
 ---
 
 ## 🧠 What is LabStack?
